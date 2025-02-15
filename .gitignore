@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite
+instance/
+.env
+
+# Flask specific
+*.log
+
+# React (Vite)
+node_modules/
+dist/
+.vite/
+*.log
+*.env
+*.tsbuildinfo
+
+# Project specific
+.venv
+
+#supervisor
+supervisord.log
+supervisord.pid
