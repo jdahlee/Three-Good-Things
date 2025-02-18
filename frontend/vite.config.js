@@ -10,4 +10,9 @@ export default defineConfig({
       usePolling: true, // needed for Docker on Windows/macOS
     },
   },
+  resolve: {
+    alias: {
+      "@requests": path.resolve(__dirname, "./src/services/requests.js"),
+    },
+  },
 });
