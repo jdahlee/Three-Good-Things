@@ -7,6 +7,11 @@ Three Good Things is a web application intended for users to input three good th
 Instructions to set up the project locally:
 
 ```bash
+# Download necessary programs
+# Docker Desktop
+# VS Code
+# Dev Containers VS Code extension
+
 # Clone the repository
 git clone https://github.com/jdahlee/Three-Good-Things.git
 
