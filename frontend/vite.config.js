@@ -12,7 +12,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@requests": path.resolve(__dirname, "./src/services/requests.js"),
+      // "@requests": path.resolve(__dirname, "./src/services/requests"),
     },
   },
 });
