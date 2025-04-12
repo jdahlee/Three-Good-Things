@@ -22,7 +22,7 @@ const Home = ({ ...props }) => {
       </p>
 
       <button
-        className="mt-6 px-6 py-3 bg-blue-700 text-black rounded-lg hover:bg-blue-600 transition"
+        className="mt-6 px-6 py-3 bg-blue-700 text-black ounded-lg hover:bg-blue-600 transition"
         onClick={handleLogClick}
       >
         Log Three Good Things
