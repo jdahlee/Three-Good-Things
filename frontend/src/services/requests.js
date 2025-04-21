@@ -2,7 +2,6 @@
 const API_BASE = "http://127.0.0.1:5000"; // Update if deployed
 
 // Create a new user account
-// TODO test this method
 export async function createUser(username, email, password) {
   const response = await fetch(`${API_BASE}/api/users/create`, {
     method: "POST",
@@ -21,26 +20,32 @@ export async function createUser(username, email, password) {
 }
 
 // Login a user
-// TODO implement + test
 export async function loginUser(username, password) {
-  const response = await fetch(
-    `${API_BASE}/api/users/login?username=${username}&password=${password}`
-  );
+  try {
+    const response = await fetch(
+      `${API_BASE}/api/users/login?username=${encodeURIComponent(
+        username
+      )}&password=${encodeURIComponent(password)}`
+    );
 
-  const responseData = await response.json();
+    const responseData = await response.json();
 
-  // set current userId if successful creation
-  if (responseData && responseData["user_id"]) {
+    if (!response.ok || !responseData["user_id"]) {
+      throw new Error("Login failed");
+    }
+
     localStorage.setItem("userId", responseData["user_id"]);
+    return responseData;
+  } catch (error) {
+    console.error("Login error:", error.message);
+    return { error: "Login failed" };
   }
-
-  return responseData;
 }
 
 // Logout a user
-// TODO implement + test
 export function logoutUser() {
   // clear the userId key from localStorage
+  localStorage.removeItem("userId");
 }
 
 // Create a log

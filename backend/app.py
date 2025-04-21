@@ -15,7 +15,6 @@ app = Flask(__name__)
 CORS(app)
 
 # User create
-# TODO Finish implementation + test
 @app.route('/api/users/create', methods=['POST'])
 def create_user():
     data = request.json
@@ -23,50 +22,57 @@ def create_user():
     email = data.get("email")
     password = data.get("password")
 
-    # TODO If username, email, or password are empty, 
-    # return an error message
-    # EX: return jsonify({"error" : username, email, and password are all required"}), (find the correct http error code)
+    # If username, email, or password are empty, 
+    if not username or not email or not password:
+        return jsonify({"error": "Username, email, and password are all required"}), 400
 
-    # TODO query database to see if user with email already exists
-    # if find_user_by_email(email):
-    #     return jsonify({"error": "Email already in use"}), 400
-    # If a user is found, return an error message that a user with that email already exists
+    # query database to see if user with email already exists
+    users_ref = db.collection("users")
+    existing_users = users_ref.where("email", "==", email).get()
+    if existing_users:
+        # If a user is found, return an error message that a user with that email already exists
+        return jsonify({"error": "A user with this email already exists"}), 400
 
+    # Create new user object
     new_user = {
         "username": username,
         "email": email,
-        "password": password
+        "password": password  # NOTE: In production, hash the password!
     }
 
-    # TODO create new user in the database, make sure you choose the option where the database
-    # automatically creates the id so we don't manually have to track that
+    # TODO create new user in the database, let Firestore auto-generate the document ID
+    new_user_ref = users_ref.document()
+    new_user_ref.set(new_user)
 
     # TODO get the user_id from the newly created user and make sure to return it
-    user_id = None
+    user_id = new_user_ref.id
 
     return jsonify({"message": "Account created", "user_id": user_id}), 201
 
+
 # User login 
-# TODO Finish implementation + test
 @app.route('/api/users/login', methods=['GET'])
 def get_user():
     # get username and password from query string
     username = request.args.get("username")
     password = request.args.get("password")
 
-    # TODO check that both username and password are not empty
-    # if either is, return an error message
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
 
-    # TODO query database to see if a user with matching username and password exists
+    users_ref = db.collection("users")
+    matching_users = users_ref.where("username", "==", username).where("password", "==", password).get()
+
+    if not matching_users:
+        # Else, return an error message
+        return jsonify({"error": "User not found"}), 404
+
     # If it does, return a success message and their id
-    # Else, return an error message
+    user_doc = matching_users[0]
+    user_id = user_doc.id
 
-    # TODO get the user_id from the newly created user and make sure to return it
-    user_id = None
+    return jsonify({"message": "Login successful", "user_id": user_id}), 200
 
-    # Example:
-    # return jsonify({"message": "Login successful", "user_id": user_id}), 201
-    # return jsonify({"error": "User not found"}), 404
 
 # Log Create
 # TODO Finish implementation + test
