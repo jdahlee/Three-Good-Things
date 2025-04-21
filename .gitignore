@@ -25,3 +25,6 @@ dist/
 #supervisor
 supervisord.log
 supervisord.pid
+
+# env
+key.json
