@@ -1,11 +1,13 @@
 import React from "react";
 import { useState } from "react";
 import { createUser } from "../services/requests";
+import { useNavigate } from "react-router-dom";
 
 const CreateAccount = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async () => {
     const res = await createUser(username, email, password);
