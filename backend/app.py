@@ -9,7 +9,8 @@ cred = credentials.Certificate("/app/backend/key.json")
 firebase_admin.initialize_app(cred)
 
 db = firestore.client()
-from datetime import datetime
+import datetime
+import zoneinfo
 
 app = Flask(__name__)
 CORS(app)
@@ -75,72 +76,63 @@ def get_user():
 
 
 # Log Create
-# TODO Finish implementation + test
 @app.route('/api/logs/create', methods=['POST'])
 def create_log():
     data = request.json
     user_id = data.get("userId")
     things = data.get("things")
-    date = data.get("date", datetime.now().strftime("%Y-%m-%d"))
 
-    # TODO look for user_id in database, if not found or user_id is null return an error
-    # if not find_user_by_id(user_id):
-    #     return jsonify({"error": "User not found"}), 404
+    user = db.collection("users").document(user_id).get()
 
-    # TODO ensure that 3 things are passed through, if not return error
-    # if not isinstance(things, list) or len(things) != 3:
-    #     return jsonify({"error": "Exactly 3 good things are required."}), 400
+    if not user.exists:
+        return jsonify({"error": "User not found"}), 404
 
-    # TODO check if user already has a log for date, if found return an error
-    # for entry in entries:
-    #     if entry["user_id"] == user_id and entry["date"] == date:
-    #         return jsonify({"error": "You already submitted for this date."}), 409
+    if len(things) != 3 or any(not thing for thing in things):
+        return jsonify({"error": "Exactly 3 good things are required."}), 400
+    
+    logs_ref = db.collection("logs")
+    today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_query = logs_ref.where('date', '>=', today).where('date', '<', today + datetime.timedelta(days=1)).where("user_id", '==', user_id).get()
 
-    # TODO turn things into a map with keys thing_1, thing_2, thing_3
-    # body = {
-    #     "thing_1": things[0],
-    #     "thing_2": things[1],
-    #     "thing_3": things[2]
+    if today_query:
+        return jsonify({"error": "You already submitted a log today."}), 409
 
-    # }
-    # This is just a guess, it's up to you to determine how things will actually be passed in
-    # From the requests.js request
+    body = {
+        "thing_1": things[0],
+        "thing_2": things[1],
+        "thing_3": things[2]
 
-    # TODO delete this line after properly creating body above
-    body = things
+    }
 
     new_log = {
         "user_id": user_id,
-        "date": date,
+        "date": firestore.SERVER_TIMESTAMP,
         "body":  body
     }
 
-    # TODO add new log to database
-    # Note that log has field creation_date, look into if we can have the DB automatically
-    #   create it for us rather than passing it in
-    # Note that log's body field is of type map, make sure that body that we are passing in matches this type
-
-    # TODO return a success message if new log was successfully created or error message if there was an error
+    new_log_ref = db.collection("logs").document()
+    new_log_ref.set(new_log)
     return jsonify({"message": "Log creation successful"}), 201
 
 # Log Get
-# TODO Finish implementation + test
 @app.route('/api/logs/get', methods=['GET'])
 def get_log():
     user_id = request.args.get("userId")
     date = request.args.get("date")
 
-    # TODO ensure that request has both date and user_id, return an error message if either empty
-    # if not user_id or not date:
-    #     return jsonify({"error": "user_id and date query parameters required"}), 400
+    if not user_id or not date:
+        return jsonify({"error": "user_id and date query parameters required"}), 400
 
-    # TODO query database for log object that has matching user_id and date
-    # Note that date field is passed in from frontend in format month-day-year
-    # Might need to change the formating of this date to match what the DB expects in your query
+    logs_ref = db.collection("logs")
+    target_date = datetime.datetime.strptime(date, "%m-%d-%Y").astimezone(zoneinfo.ZoneInfo('America/Chicago'))
 
-    # TODO if log found in database, return it. Otherwise, return an error
+    target_query = logs_ref.where('date', '>=', target_date).where('date', '<', target_date + datetime.timedelta(days=1)).where("user_id", '==', user_id).get()
+
+    if not target_query:
+        return jsonify({"error": "Log not found for this date", "target_query": len(target_query)}), 404
     
-    # return jsonify({"error": "Log not found for this date"}), 404
+    return jsonify({"message": "Log found successfully", "log": target_query[0].to_dict()}), 200
+    
 
 
 

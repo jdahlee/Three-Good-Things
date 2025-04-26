@@ -49,10 +49,7 @@ export function logoutUser() {
 }
 
 // Create a log
-// TODO implement + test
 export async function createLog(things) {
-  // TODO determine how you want things to be structure. Example as an array vs a map
-
   // Add userId as stored from during either login or creation
   const userId = localStorage.getItem("userId");
 
@@ -67,14 +64,13 @@ export async function createLog(things) {
 }
 
 // Fetch a past log for a given date
-// TODO implement + test
 export async function getLog(targetDate) {
   // Add userId as stored from during either login or creation
   const userId = localStorage.getItem("userId");
 
   // Fetch from backend
   const response = await fetch(
-    `${API_BASE}/api/entries?userId=${userId}&date=${targetDate}`
+    `${API_BASE}/api/logs/get?userId=${userId}&date=${targetDate}`
   );
   return await response.json();
 }
