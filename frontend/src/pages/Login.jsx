@@ -1,14 +1,21 @@
 import  { useState } from 'react';
+import { loginUser } from '../services/requests';
 
-function Login() {
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // Handle login logic here
-    console.log('Username:', username);
-    console.log('Password:', password);
+  const handleSubmit = async () => {
+    const result = await loginUser(username, password);
+    console.log("Submitted username", username);
+    console.log("Submitted password", password);
+    setUsername("");
+    setPassword("");
+    if (result.error) {
+      alert(`${result.error}`);
+    } else if (result && result.message == "Login successful") {
+      navigate("/");
+    }
   };
 
   const containerStyle = {
@@ -43,7 +50,6 @@ function Login() {
   return (
     <div style={containerStyle}>
       <h1 style={headingStyle}>Login </h1>
-      <form style={formStyle} onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Username"
@@ -58,10 +64,12 @@ function Login() {
           onChange={(e) => setPassword(e.target.value)}
           style={inputStyle}
         />
-        <button type="submit" style={buttonStyle}>Login</button>
-      </form>
+        <button style={buttonStyle}
+         onClick={handleSubmit}>
+          Login
+        </button>
     </div>
   );
-}
+};
 
 export default Login;

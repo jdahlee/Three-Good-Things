@@ -6,6 +6,8 @@ import NotFound from "./pages/NotFound";
 import "./App.css";
 import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
+import LogEntry from "./pages/LogEntry";
+import LogFind from "./pages/PastLogs";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/create" element={<CreateAccount />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/log" element={<LogEntry />} />
+        <Route path="/pastentries" element={<LogFind />} />
       </Routes>
     </BrowserRouter>
   );

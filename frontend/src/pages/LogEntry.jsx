@@ -1,10 +1,23 @@
 import React from "react";
 import { useState } from "react";
+import { createLog } from "../services/requests";
 
 const LogEntry = ({ ...props }) => {
   const [logEntry1, setLogEntry1] = useState("");
   const [logEntry2, setLogEntry2] = useState("");
   const [logEntry3, setLogEntry3] = useState("");
+
+  const handleSave = async () => {
+    const logs = [logEntry1, logEntry2, logEntry3];
+    const result = await createLog(logs);
+      console.log("Created Log:", result);
+      setLogEntry1("");
+      setLogEntry2("");
+      setLogEntry3(""); 
+      if (result.error) {
+        alert(`${result.error}`);
+      }
+  };
 
   return ( 
     <div className="flex flex-col h-full justify-start items-center p-5">
@@ -36,7 +49,9 @@ const LogEntry = ({ ...props }) => {
         </div>
       </div>
 
-      <button className="mt-10">Save</button>
+      <button onClick={handleSave} className="mt-10">
+        Save
+      </button>
     </div>
   );
 };

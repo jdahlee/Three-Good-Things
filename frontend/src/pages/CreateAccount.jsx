@@ -1,10 +1,23 @@
 import React from "react";
 import { useState } from "react";
+import { createUser } from "../services/requests";
 
-const CreateAccount = ({ ...props }) => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+const CreateAccount = () => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async () => {
+    const res = await createUser(username, email, password);
+    console.log("res", res);
+    if (res.error) {
+      alert(
+        `Ran into the following problem when creating account: ${res.error}`
+      );
+    } else if (res && res.message == "Account created") {
+      navigate("/");
+    }
+  };
 
   return (
   <div className="min-h-screen bg-[#242424] flex items-center justify-center">
@@ -40,6 +53,7 @@ const CreateAccount = ({ ...props }) => {
 
         <button
           className = "w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-200"
+          onClick={handleSubmit}
         >
           Create Account
         </button>
