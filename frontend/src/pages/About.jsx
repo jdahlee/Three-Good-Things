@@ -1,8 +1,6 @@
-import React from "react";
-
 const About = () => {
   return (
-    <div className="flex flex-col h-full justify-center items-center p-8 bg-white text-black space-y-6">
+    <div className="flex flex-col h-full justify-center items-center p-8 text-white space-y-6">
       <h1 className="text-3xl font-bold">About Three Good Things</h1>
       <p className="max-w-2xl text-center text-lg">
         <strong>Three Good Things</strong> is a simple and powerful tool to help you build a habit of reflection and gratitude.

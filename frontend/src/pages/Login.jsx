@@ -29,20 +29,16 @@ const Login = () => {
     textAlign: 'center',
   };
 
-  const formStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  };
-
   const headingStyle = {
     marginBottom: '20px', // Add space below the heading
+    color: 'white',
   };
 
   const inputStyle = {
     marginBottom: '10px',
     padding: '8px',
     width: '200px',
+    color: 'white',
   };
 
   const buttonStyle = {

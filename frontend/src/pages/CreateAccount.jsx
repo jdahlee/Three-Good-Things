@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import { createUser } from "../services/requests";
 import { useNavigate } from "react-router-dom";
@@ -22,7 +21,7 @@ const CreateAccount = () => {
   };
 
   return (
-  <div className="min-h-screen bg-[#242424] flex items-center justify-center">
+  <div className="min-h-screen flex items-center justify-center">
     <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
       <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
         Three Good Things

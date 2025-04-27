@@ -1,8 +1,7 @@
-import React from "react";
 import { useState } from "react";
 import { createLog } from "../services/requests";
 
-const LogEntry = ({ ...props }) => {
+const LogEntry = () => {
   const [logEntry1, setLogEntry1] = useState("");
   const [logEntry2, setLogEntry2] = useState("");
   const [logEntry3, setLogEntry3] = useState("");
@@ -21,7 +20,7 @@ const LogEntry = ({ ...props }) => {
 
   return ( 
     <div className="flex flex-col h-full justify-start items-center p-5">
-      <h1>Write three good things about today!</h1>
+      <h1 className = "text-white">Write three good things about today!</h1>
       <div className="flex gap-35 mt-20">
         <div className="w-60 h-60 bg-gray-500">
           <textarea
