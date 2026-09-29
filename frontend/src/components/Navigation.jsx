@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
-import { AiFillSetting } from "react-icons/ai";
+// import { AiFillSetting } from "react-icons/ai";
 
 const Navigation = () => {
   const [open, setOpen] = useState(false);
@@ -32,8 +32,11 @@ const Navigation = () => {
           <Link to="/create">Create Account</Link>
         </li>
         <div className="relative inline-block ml-auto" ref={dropdownRef}>
-          <button onClick={toggleDropdown} className="p-2 hover:bg-gray-100 rounded-full">
-            <AiFillSetting className="text-4xl"/>
+          <button
+            onClick={toggleDropdown}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
+            <span className="text-4xl border-2 w-3 h-3 bg-black"></span>
           </button>
           {open && (
             <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-300 rounded shadow-lg z-10">
