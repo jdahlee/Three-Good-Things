@@ -80,6 +80,7 @@ def get_user():
 def create_log():
     data = request.json
     user_id = data.get("userId")
+    time_zone = data.get("timeZone")
     things = data.get("things")
 
     user = db.collection("users").document(user_id).get()
@@ -91,7 +92,7 @@ def create_log():
         return jsonify({"error": "Exactly 3 good things are required."}), 400
     
     logs_ref = db.collection("logs")
-    today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.datetime.now().astimezone(zoneinfo.ZoneInfo(time_zone)).replace(hour=0, minute=0, second=0, microsecond=0)
     today_query = logs_ref.where('date', '>=', today).where('date', '<', today + datetime.timedelta(days=1)).where("user_id", '==', user_id).get()
 
     if today_query:
@@ -119,12 +120,12 @@ def create_log():
 def get_log():
     user_id = request.args.get("userId")
     date = request.args.get("date")
-
-    if not user_id or not date:
-        return jsonify({"error": "user_id and date query parameters required"}), 400
+    time_zone = request.args.get("timeZone")
+    if not user_id or not date or not time_zone:
+        return jsonify({"error": "user_id, date, and time_zone query parameters required"}), 400
 
     logs_ref = db.collection("logs")
-    target_date = datetime.datetime.strptime(date, "%m-%d-%Y").astimezone(zoneinfo.ZoneInfo('America/Chicago'))
+    target_date = datetime.datetime.strptime(date, "%m-%d-%Y").replace(tzinfo=zoneinfo.ZoneInfo(time_zone))
 
     target_query = logs_ref.where('date', '>=', target_date).where('date', '<', target_date + datetime.timedelta(days=1)).where("user_id", '==', user_id).get()
 
