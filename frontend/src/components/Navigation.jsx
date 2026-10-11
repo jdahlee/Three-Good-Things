@@ -31,6 +31,9 @@ const Navigation = () => {
         <li>
           <Link to="/create">Create Account</Link>
         </li>
+        <li>
+          <Link to="/login">Login to Account</Link>
+        </li>
         <div className="relative inline-block ml-auto" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
