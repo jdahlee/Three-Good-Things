@@ -7,6 +7,7 @@ export async function createUser(username, email, password) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, email, password }),
+    credentials: "include",
   });
 
   const responseData = await response.json();
@@ -19,14 +20,15 @@ export async function createUser(username, email, password) {
   return responseData;
 }
 
-// Login a user
+// Login a user using POST method and allowing session cookies
 export async function loginUser(username, password) {
   try {
-    const response = await fetch(
-      `${API_BASE}/api/users/login?username=${encodeURIComponent(
-        username
-      )}&password=${encodeURIComponent(password)}`
-    );
+    const response = await fetch(`${API_BASE}/api/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+      credentials: "include",
+    });
 
     const responseData = await response.json();
 
@@ -70,7 +72,7 @@ export async function getLog(targetDate) {
 
   // Fetch from backend
   const response = await fetch(
-    `${API_BASE}/api/logs/get?userId=${userId}&date=${targetDate}`
+    `${API_BASE}/api/logs/get?userId=${userId}&date=${targetDate}`,
   );
   return await response.json();
 }

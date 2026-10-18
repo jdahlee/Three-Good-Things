@@ -1,6 +1,12 @@
-from flask import Flask, request, jsonify
+import os
+from flask import Flask, request, jsonify, session
+from dotenv import load_dotenv
+import secrets
 from flask_cors import CORS
 import requests
+
+# loads the variables from the .env, allowing for session/cookie tracking
+load_dotenv()
 
 import firebase_admin
 from firebase_admin import credentials, firestore
@@ -13,7 +19,12 @@ import datetime
 import zoneinfo
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+
+# gets secret key from .env file, or uses a backup key if not found (for development purposes)
+app.secret_key = os.environ.get('SECRET_KEY', "dev-only-backup")
+# this fallback lets 
+
 
 # User create
 @app.route('/api/users/create', methods=['POST'])
@@ -52,12 +63,13 @@ def create_user():
 
 
 # User login 
-@app.route('/api/users/login', methods=['GET'])
+@app.route('/api/users/login', methods=['POST'])
 def get_user():
-    # get username and password from query string
-    username = request.args.get("username")
-    password = request.args.get("password")
-
+    # get username and password using POST method (standard practice)
+    data = request.json
+    username = data.get("username")
+    password = data.get("password")
+        
     if not username or not password:
         return jsonify({"error": "Username and password are required"}), 400
 
@@ -68,10 +80,11 @@ def get_user():
         # Else, return an error message
         return jsonify({"error": "User not found"}), 404
 
-    # If it does, return a success message and their id
+    # If it does, return a success message and their id and start the session
     user_doc = matching_users[0]
     user_id = user_doc.id
-
+    session['user_id'] = user_id
+    
     return jsonify({"message": "Login successful", "user_id": user_id}), 200
 
 
