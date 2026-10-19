@@ -8,11 +8,14 @@ import Login from "./pages/Login";
 import CreateAccount from "./pages/CreateAccount";
 import LogEntry from "./pages/LogEntry";
 import LogFind from "./pages/PastLogs";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <Navigation />
+      <AuthProvider>
+        <Navigation></Navigation>
+      </AuthProvider>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />

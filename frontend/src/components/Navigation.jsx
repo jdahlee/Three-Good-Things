@@ -1,10 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
+import { logoutUser } from "../services/requests";
 // import { AiFillSetting } from "react-icons/ai";
 
 const Navigation = () => {
   const [open, setOpen] = useState(false);
+  const { authUser, setAuthUser, isLoggedIn } = useAuth();
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  const handleLogOut = async () => {
+    await logoutUser();
+    setAuthUser(null);
+    navigate("/"); // Call the logoutUser function to log out the user
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -28,12 +38,24 @@ const Navigation = () => {
         <li>
           <Link to="/about">About</Link>
         </li>
-        <li>
-          <Link to="/create">Create Account</Link>
-        </li>
-        <li>
-          <Link to="/login">Login</Link>
-        </li>
+        {isLoggedIn ? (
+          <>
+            <li>Hi, {authUser.username}!</li>
+            <li>
+              <button onClick={handleLogOut}>Log Out</button>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link to="/create">Create Account</Link>
+            </li>
+            <li>
+              <Link to="/login">Login</Link>
+            </li>
+          </>
+        )}
+
         <div className="relative inline-block ml-auto" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
