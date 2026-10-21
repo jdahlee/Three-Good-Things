@@ -179,9 +179,11 @@ def get_log():
     return jsonify({"message": "Log found successfully", "log": target_query[0].to_dict()}), 200
 
 # logs user out by clearing the session
+
 @app.route('/api/logs/logout', methods=['POST'])
 def logout():
     session.clear()
+      # This will clear the session and log the user out
     return jsonify({"message": "Logged out"}), 200
 
 

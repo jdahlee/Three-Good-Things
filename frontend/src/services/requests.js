@@ -63,10 +63,11 @@ export async function getCurrentUser() {
 
 // Logout a user
 export async function logoutUser() {
-  await fetch(`${API_BASE}/api/users/logout`, {
+  await fetch(`${API_BASE}/api/logs/logout`, {
     method: "POST",
     credentials: "include",
   });
+  localStorage.removeItem("userId");
 }
 
 // Create a log
