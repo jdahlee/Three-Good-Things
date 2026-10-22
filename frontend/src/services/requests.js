@@ -1,9 +1,9 @@
 // Index for all api calls
-const API_BASE = "http://127.0.0.1:5000"; // Update if deployed
+const API_BASE = "/api";
 
 // Create a new user account
 export async function createUser(username, email, password) {
-  const response = await fetch(`${API_BASE}/api/users/create`, {
+  const response = await fetch(`${API_BASE}/users/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, email, password }),
@@ -23,9 +23,9 @@ export async function createUser(username, email, password) {
 export async function loginUser(username, password) {
   try {
     const response = await fetch(
-      `${API_BASE}/api/users/login?username=${encodeURIComponent(
-        username
-      )}&password=${encodeURIComponent(password)}`
+      `${API_BASE}/users/login?username=${encodeURIComponent(
+        username,
+      )}&password=${encodeURIComponent(password)}`,
     );
 
     const responseData = await response.json();
@@ -54,7 +54,7 @@ export async function createLog(things) {
   const userId = localStorage.getItem("userId");
 
   // Post to backend
-  const response = await fetch(`${API_BASE}/api/logs/create`, {
+  const response = await fetch(`${API_BASE}/logs/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ userId, things }),
@@ -70,7 +70,32 @@ export async function getLog(targetDate) {
 
   // Fetch from backend
   const response = await fetch(
-    `${API_BASE}/api/logs/get?userId=${userId}&date=${targetDate}`
+    `${API_BASE}/logs/get?userId=${userId}&date=${targetDate}`,
   );
+  return await response.json();
+}
+
+// Get streak
+export async function getStreak() {
+  // Add userId as stored from during either login or creation
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    throw new Error("Log in to see your streak.");
+  }
+  // Get timeZone from browser
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const response = await fetch(
+    `${API_BASE}/streak/get?timeZone=${timeZone}&userId=${userId}`,
+  );
+
+  if (!response.ok) {
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const responseData = await response.json();
+      throw new Error(responseData.error || "Unable to load your streak.");
+    }
+    throw new Error(`Unable to load your streak (HTTP ${response.status}).`);
+  }
+
   return await response.json();
 }

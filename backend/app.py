@@ -133,7 +133,47 @@ def get_log():
     
     return jsonify({"message": "Log found successfully", "log": target_query[0].to_dict()}), 200
     
+# Streak Get
+@app.route('/api/streak/get', methods=['GET'])
+def get_streak():
+    user_id = request.args.get("userId")
+    time_zone = request.args.get("timeZone")
+    if not user_id or not time_zone:
+        return jsonify({"error": "userId and timeZone query parameters required"}), 400
+    today = datetime.datetime.now().astimezone(zoneinfo.ZoneInfo(time_zone)).date()
 
+    yesterday = today - datetime.timedelta(days=1)
+    #create a table of all user logs, sorted backwards chronologically
+    logs = sorted(
+        db.collection("logs")
+        .where("user_id", "==", user_id)
+        .stream(),
+        key=lambda log: log.to_dict()["date"],
+        reverse=True,
+    )
+
+    streak = 0
+    expected_day = None
+
+    for log in logs:
+        log_day = log.to_dict()["date"].astimezone(zoneinfo.ZoneInfo(time_zone)).date()
+
+        #first iteration: if the day of the most recent log is not today or yesterday,
+        #break immediately
+        if expected_day is None:
+            if log_day not in (today, yesterday):
+                break
+            expected_day = log_day
+        #every other iteration:
+        #iterating backwards through the logs until log_day != expected day
+        if log_day != expected_day:
+            break
+
+        #log_day is what it should be, so continue iteration one back
+        streak += 1
+        expected_day -= datetime.timedelta(days=1)
+
+    return jsonify({"streak": streak}), 200
 
 
 # Database interaction examples:
