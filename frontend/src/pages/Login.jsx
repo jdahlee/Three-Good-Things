@@ -1,11 +1,13 @@
-import  { useState } from 'react';
-import { loginUser } from '../services/requests';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { loginUser } from "../services/requests";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const handleSubmit = async () => {
     const result = await loginUser(username, password);
@@ -16,56 +18,57 @@ const Login = () => {
     if (result.error) {
       alert(`${result.error}`);
     } else if (result && result.message == "Login successful") {
+      // refresh user state after succesful login, updates components
+      await refreshUser();
       navigate("/");
     }
   };
 
   const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    textAlign: 'center',
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh",
+    textAlign: "center",
   };
 
   const headingStyle = {
-    marginBottom: '20px', // Add space below the heading
-    color: 'white',
+    marginBottom: "20px", // Add space below the heading
+    color: "white",
   };
 
   const inputStyle = {
-    marginBottom: '10px',
-    padding: '8px',
-    width: '200px',
-    color: 'white',
+    marginBottom: "10px",
+    padding: "8px",
+    width: "200px",
+    color: "white",
   };
 
   const buttonStyle = {
-    padding: '8px 16px',
+    padding: "8px 16px",
   };
 
   return (
     <div style={containerStyle}>
       <h1 style={headingStyle}>Login </h1>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          style={inputStyle}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={inputStyle}
-        />
-        <button style={buttonStyle}
-         onClick={handleSubmit}>
-          Login
-        </button>
+      <input
+        type="text"
+        placeholder="Username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        style={inputStyle}
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        style={inputStyle}
+      />
+      <button style={buttonStyle} onClick={handleSubmit}>
+        Login
+      </button>
     </div>
   );
 };
