@@ -28,9 +28,6 @@ const Navigation = () => {
   }, []);
 
   const toggleDropdown = () => setOpen((prev) => !prev);
-  {
-    /* NOW */
-  }
   return (
     <nav>
       <ul className="flex pt-5 px-3 space-x-4">
@@ -68,14 +65,16 @@ const Navigation = () => {
               <ul className="text-sm text-gray-700">
                 <li>Light Mode</li>
                 <li>Help</li>
-                <li>
-                  <button
-                    onClick={handleLogOut}
-                    className="bg-transparent border-0 p-0 m-0 text-inherit text-left cursor-pointer font-inherit text-sm"
-                  >
-                    Log Out
-                  </button>
-                </li>
+                {isLoggedIn ? (
+                  <li>
+                    <button
+                      onClick={handleLogOut}
+                      className="bg-transparent border-0 p-0 m-0 text-inherit text-left cursor-pointer font-inherit text-sm"
+                    >
+                      Log Out
+                    </button>
+                  </li>
+                ) : null}
               </ul>
             </div>
           )}
