@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { styles } from "../styles";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -12,24 +13,17 @@ const Home = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen justify-center items-center p-5 space-y-6 text-white">
-      <h1 className="text-3xl font-bold">Welcome to Three Good Things</h1>
-
+    <div className={`${styles.root} ${styles.body} `}>
+      <h1 className={`${styles.h1} font-bold`}>Welcome to Three Good Things</h1>
       <p className="text-lg text-white max-w-md text-center">
         A way to reflect on the positive moments in your life. Write three good
         things every day.
       </p>
-      <button
-        className="mt-6 px-6 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition"
-        onClick={handleLogClick}
-      >
+      <button className={`${styles.button} mt-6`} onClick={handleLogClick}>
         Log Three Good Things
       </button>
 
-      <button
-        className="mt-6 px-6 py-3 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition"
-        onClick={handlePastEntries}
-      >
+      <button className={`${styles.button} mt-6`} onClick={handlePastEntries}>
         Look at Past Entries
       </button>
     </div>
