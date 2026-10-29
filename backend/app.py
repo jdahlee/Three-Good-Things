@@ -102,7 +102,7 @@ def login():
 
     # if the inputted password matches the stored password (stored password hasn't been hashed yet)
     if password == stored_password:
-        # hash the existing password and update the local user_doc
+        # hash the existing password and update the user_doc in database
         user_doc.reference.update({"password": generate_password_hash(stored_password)})
 
     # unhash the stored password, check it with what the user entered, and if the passwords don't match:
