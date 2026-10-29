@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import secrets
 from flask_cors import CORS
 import requests
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # loads the variables from the .env, allowing for session/cookie tracking
 load_dotenv()
@@ -51,12 +52,14 @@ def create_user():
         return jsonify({"error": "A user with this username already exists"}), 400
 
 
+    # hashes password before creating new user object
+    hashed_password = generate_password_hash(password)
 
     # Create new user object
     new_user = {
         "username": username,
         "email": email,
-        "password": password  # NOTE: In production, hash the password!
+        "password": hashed_password
     }
 
     # TODO create new user in the database, let Firestore auto-generate the document ID
@@ -82,11 +85,11 @@ def login():
     if not username or not password:
         return jsonify({"error": "Username and password are required"}), 400
 
-    # looks for a matching user (username and password) from firebase database
+    # looks for a matching user (username) from firebase database
     users_ref = db.collection("users")
-    matching_users = users_ref.where("username", "==", username).where("password", "==", password).get()
+    matching_users = users_ref.where("username", "==", username).get()
 
-    # if there is no existing user with entered username/password, error message is returned to frontend
+    # if there is no existing user with entered username, error message is returned to frontend
     if not matching_users:
         # Else, return an error message
         return jsonify({"error": "User not found"}), 404
@@ -94,9 +97,23 @@ def login():
     # Firebase returns a list of matching users on .get, but we only use the first match (matching_users[0])
     # retrieve the user_id from the (first) matching user, use it so start a session
     user_doc = matching_users[0]
+    # find the stored (hashed) password that belongs the the username being queried (or return "" if no password is found for the username)
+    stored_password = user_doc.to_dict().get("password", "")
+
+    # if the inputted password matches the stored password (stored password hasn't been hashed yet)
+    if password == stored_password:
+        # hash the existing password and update the local user_doc
+        user_doc.reference.update({"password": generate_password_hash(stored_password)})
+
+    # unhash the stored password, check it with what the user entered, and if the passwords don't match:
+    elif not check_password_hash(stored_password, password):
+        # return an error message
+        return jsonify({"error": "User not found"}), 404
+
+    # if everything matches, create a user id for the user and 
+    # show success message
     user_id = user_doc.id
     session['user_id'] = user_id
-    
     return jsonify({"message": "Login successful", "user_id": user_id}), 200
 
 # Identifies current user (for session management)
