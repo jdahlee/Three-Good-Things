@@ -74,12 +74,12 @@ export async function logoutUser() {
 export async function createLog(things) {
   // Add userId as stored from during either login or creation
   const userId = localStorage.getItem("userId");
-
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   // Post to backend
   const response = await fetch(`${API_BASE}/api/logs/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, things }),
+    body: JSON.stringify({ userId, things, timeZone }),
   });
 
   return await response.json();
@@ -89,10 +89,11 @@ export async function createLog(things) {
 export async function getLog(targetDate) {
   // Add userId as stored from during either login or creation
   const userId = localStorage.getItem("userId");
-
+  // Get timeZone from browser
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   // Fetch from backend
   const response = await fetch(
-    `${API_BASE}/api/logs/get?userId=${userId}&date=${targetDate}`,
+    `${API_BASE}/api/logs/get?userId=${userId}&date=${targetDate}&timeZone=${timeZone}`,
   );
   return await response.json();
 }
