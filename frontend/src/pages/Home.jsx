@@ -13,7 +13,7 @@ const Home = () => {
   };
 
   return (
-    <div className={`${styles.root} ${styles.body} `}>
+    <div className={`${styles.root} p-5`}>
       <h1 className={`${styles.h1} font-bold`}>Welcome to Three Good Things</h1>
       <p className="text-lg text-white max-w-md text-center">
         A way to reflect on the positive moments in your life. Write three good
