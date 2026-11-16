@@ -11,8 +11,6 @@ const Login = () => {
 
   const handleSubmit = async () => {
     const result = await loginUser(username, password);
-    console.log("Submitted username", username);
-    console.log("Submitted password", password);
     setUsername("");
     setPassword("");
     if (result.error) {

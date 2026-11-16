@@ -23,11 +23,12 @@ export async function createUser(username, email, password) {
 // Login a user using POST method and allowing session cookies
 export async function loginUser(username, password) {
   try {
-    const response = await fetch(
-      `${API_BASE}/users/login?username=${encodeURIComponent(
-        username,
-      )}&password=${encodeURIComponent(password)}`,
-    );
+    const response = await fetch(`${API_BASE}/users/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+      credentials: "include",
+    });
 
     const responseData = await response.json();
 
@@ -47,7 +48,7 @@ export async function loginUser(username, password) {
 // if the backend sees this function return null, it treats it as if the user is logged out
 export async function getCurrentUser() {
   try {
-    const response = await fetch(`${API_BASE}/api/users/me`, {
+    const response = await fetch(`${API_BASE}/users/me`, {
       credentials: "include",
     });
     // if the response is not ok, return null to indicate no user is logged in
@@ -62,7 +63,7 @@ export async function getCurrentUser() {
 
 // Logout a user
 export async function logoutUser() {
-  await fetch(`${API_BASE}/api/logs/logout`, {
+  await fetch(`${API_BASE}/logs/logout`, {
     method: "POST",
     credentials: "include",
   });
@@ -73,12 +74,12 @@ export async function logoutUser() {
 export async function createLog(things) {
   // Add userId as stored from during either login or creation
   const userId = localStorage.getItem("userId");
-
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   // Post to backend
   const response = await fetch(`${API_BASE}/logs/create`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, things }),
+    body: JSON.stringify({ userId, things, timeZone }),
   });
 
   return await response.json();
@@ -88,10 +89,11 @@ export async function createLog(things) {
 export async function getLog(targetDate) {
   // Add userId as stored from during either login or creation
   const userId = localStorage.getItem("userId");
-
+  // Get timeZone from browser
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   // Fetch from backend
   const response = await fetch(
-    `${API_BASE}/api/logs/get?userId=${userId}&date=${targetDate}`,
+    `${API_BASE}/logs/get?userId=${userId}&date=${targetDate}&timeZone=${timeZone}`,
   );
   return await response.json();
 }
