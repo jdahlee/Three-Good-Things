@@ -12,7 +12,7 @@ import LogFind from "./pages/PastLogs";
 function App() {
   return (
     <BrowserRouter>
-      <Navigation />
+      <Navigation></Navigation>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
