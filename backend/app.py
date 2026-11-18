@@ -201,8 +201,9 @@ def get_current_user():
 def create_log():
     data = request.json
     user_id = data.get("userId")
+    time_zone = data.get("timeZone")
     things = data.get("things")
-
+    
     user = db.collection("users").document(user_id).get()
 
     if not user.exists:
@@ -212,7 +213,7 @@ def create_log():
         return jsonify({"error": "Exactly 3 good things are required."}), 400
     
     logs_ref = db.collection("logs")
-    today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.datetime.now().astimezone(zoneinfo.ZoneInfo(time_zone)).replace(hour=0, minute=0, second=0, microsecond=0)
     today_query = logs_ref.where('date', '>=', today).where('date', '<', today + datetime.timedelta(days=1)).where("user_id", '==', user_id).get()
 
     if today_query:
@@ -240,12 +241,12 @@ def create_log():
 def get_log():
     user_id = request.args.get("userId")
     date = request.args.get("date")
-
-    if not user_id or not date:
-        return jsonify({"error": "user_id and date query parameters required"}), 400
+    time_zone = request.args.get("timeZone")
+    if not user_id or not date or not time_zone:
+        return jsonify({"error": "user_id, date, and time_zone query parameters required"}), 400
 
     logs_ref = db.collection("logs")
-    target_date = datetime.datetime.strptime(date, "%m-%d-%Y").astimezone(zoneinfo.ZoneInfo('America/Chicago'))
+    target_date = datetime.datetime.strptime(date, "%m-%d-%Y").replace(tzinfo=zoneinfo.ZoneInfo(time_zone))
 
     target_query = logs_ref.where('date', '>=', target_date).where('date', '<', target_date + datetime.timedelta(days=1)).where("user_id", '==', user_id).get()
 
@@ -255,12 +256,54 @@ def get_log():
     return jsonify({"message": "Log found successfully", "log": target_query[0].to_dict()}), 200
 
 # logs user out by clearing the session
-
 @app.route('/api/logs/logout', methods=['POST'])
 def logout():
     session.clear()
       # This will clear the session and log the user out
     return jsonify({"message": "Logged out"}), 200
+
+# Streak Get
+@app.route('/api/streak/get', methods=['GET'])
+def get_streak():
+    user_id = request.args.get("userId")
+    time_zone = request.args.get("timeZone")
+    if not user_id or not time_zone:
+        return jsonify({"error": "userId and timeZone query parameters required"}), 400
+    today = datetime.datetime.now().astimezone(zoneinfo.ZoneInfo(time_zone)).date()
+
+    yesterday = today - datetime.timedelta(days=1)
+    #create a table of all user logs, sorted backwards chronologically
+    logs = sorted(
+        db.collection("logs")
+        .where("user_id", "==", user_id)
+        .stream(),
+        key=lambda log: log.to_dict()["date"],
+        reverse=True,
+    )
+
+    streak = 0
+    expected_day = None
+
+    for log in logs:
+        log_day = log.to_dict()["date"].astimezone(zoneinfo.ZoneInfo(time_zone)).date()
+
+        #first iteration: if the day of the most recent log is not today or yesterday,
+        #break immediately
+        if expected_day is None:
+            if log_day not in (today, yesterday):
+                break
+            expected_day = log_day
+        #every other iteration:
+        #iterating backwards through the logs until log_day != expected day
+        if log_day != expected_day:
+            break
+
+        #log_day is what it should be, so continue iteration one back
+        streak += 1
+        expected_day -= datetime.timedelta(days=1)
+
+    return jsonify({"streak": streak}), 200
+
 
 
 # Database interaction examples:
