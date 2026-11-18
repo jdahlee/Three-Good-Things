@@ -44,6 +44,25 @@ export async function loginUser(username, password) {
   }
 }
 
+// Login a user with Google Authentication
+export async function loginWithGoogle(idToken) {
+  const response = await fetch(`${API_BASE}/api/users/login-google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ idToken }),
+    credentials: "include",
+  });
+
+  const responseData = await response.json();
+
+  if (!response.ok || !responseData["user_id"]) {
+    throw new Error("Login failed");
+  }
+
+  localStorage.setItem("userId", responseData["user_id"]);
+  return responseData;
+}
+
 // retrieve the current logged-in user
 // if the backend sees this function return null, it treats it as if the user is logged out
 export async function getCurrentUser() {

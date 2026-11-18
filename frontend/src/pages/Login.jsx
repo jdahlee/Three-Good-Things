@@ -2,6 +2,9 @@ import { useState } from "react";
 import { loginUser } from "../services/requests";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../services/firebase";
+import { loginWithGoogle } from "../services/requests";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -21,6 +24,27 @@ const Login = () => {
       // refresh user state after succesful login, updates components
       await refreshUser();
       navigate("/");
+    }
+  };
+
+  // login with Google option
+  const googleLogin = async () => {
+    try {
+      // sign in with Google popup
+      const result = await signInWithPopup(auth, provider);
+      // get ID token from Google user
+      const idToken = await result.user.getIdToken();
+      // sends ID token to backend
+      const response = await loginWithGoogle(idToken);
+      if (response.error) {
+        alert(`${response.error}`);
+        return;
+      }
+      // refresh user state after succesful login, updates components
+      await refreshUser();
+      navigate("/");
+    } catch (error) {
+      console.error("Google login error:", error.message);
     }
   };
 
@@ -47,6 +71,7 @@ const Login = () => {
 
   const buttonStyle = {
     padding: "8px 16px",
+    margin: "5px",
   };
 
   return (
@@ -68,6 +93,9 @@ const Login = () => {
       />
       <button style={buttonStyle} onClick={handleSubmit}>
         Login
+      </button>
+      <button style={buttonStyle} onClick={googleLogin}>
+        Login with Google
       </button>
     </div>
   );

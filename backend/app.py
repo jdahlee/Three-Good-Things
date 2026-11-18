@@ -5,6 +5,7 @@ import secrets
 from flask_cors import CORS
 import requests
 from werkzeug.security import generate_password_hash, check_password_hash
+from firebase_admin import credentials, firestore, auth
 
 # loads the variables from the .env, allowing for session/cookie tracking
 load_dotenv()
@@ -110,11 +111,69 @@ def login():
         # return an error message
         return jsonify({"error": "User not found"}), 404
 
-    # if everything matches, create a user id for the user and 
-    # show success message
+    # if everything matches, create a user id for the user and show success message
     user_id = user_doc.id
     session['user_id'] = user_id
     return jsonify({"message": "Login successful", "user_id": user_id}), 200
+
+# login with Google
+@app.route('/api/users/login-google', methods=['POST'])
+def login_google():
+    data = request.json
+    # get token from frontend request
+    idToken = data.get("idToken")
+
+    try:
+        # let google verify the token
+        idinfo = auth.verify_id_token(idToken)
+    except Exception:
+        # invalid token
+        return jsonify({"error": "Invalid Google Sign-in"}), 401
+
+    # gather user info from verified token
+    email = idinfo.get("email")
+    if not email or not idinfo.get("email_verified"):
+        return jsonify({"error": "Unverified Google Email account"}), 401
+
+    # if the user doesn't exist, create a new user
+    users_ref = db.collection("users")
+    matching_users = users_ref.where("email", "==", email).get()
+    if not matching_users:
+
+        # set (base) username as the email before the @ symbol
+        base_username = email.split("@")[0]
+        username = base_username
+
+        # if the username already exists, add a number suffix until it is unique (username1, username2...)
+        existing_usernames = users_ref.where("username", "==", username).get()
+        suffix_counter = 1
+        while existing_usernames:
+            username = base_username + str(suffix_counter)
+            suffix_counter += 1
+            existing_usernames = users_ref.where("username", "==", username).get()
+
+        # create new user object
+        new_user = {
+            "username": username,
+            "email": email,
+            "password": ""
+        }
+
+        # create new user in the database, let Firestore auto-generate the document ID
+        new_user_ref = users_ref.document()
+        new_user_ref.set(new_user)
+
+        # get the user_id from the newly created user and make sure to return it
+        user_id = new_user_ref.id
+        
+    else:
+        # if the user already exists, get their user_id and show success message
+        user_id = matching_users[0].id
+
+    session['user_id'] = user_id
+    return jsonify({"message": "Login successful", "user_id": user_id}), 200
+
+
 
 # Identifies current user (for session management)
 # this process is separate from login because user may refresh or open a new tab
