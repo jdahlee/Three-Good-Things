@@ -11,6 +11,10 @@ const textareaStyles =
   "w-full h-full p-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-500 text-gray-800 box-border";
 const logGridStyles = "flex gap-10 mt-20 flex-wrap justify-center";
 const textareaWrapperStyles = "w-60 h-60 bg-gray-500";
+const paragraphStyles = "max-w-2xl text-center text-lg";
+const cardStyles = "bg-white shadow-xl rounded-2xl p-8 w-full max-w-md text-left";
+const cardTitleStyles = "text-2xl font-bold text-gray-800 mb-6 text-center";
+const inputStyles = "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-500 text-gray-800 box-border";
 export const styles = {
   root: rootStyles,
   link: linkStyles,
@@ -20,4 +24,8 @@ export const styles = {
   textarea: textareaStyles,
   logGrid: logGridStyles,
   textareaWrapper: textareaWrapperStyles,
+  paragraph: paragraphStyles,
+  card: cardStyles,
+  cardTitle: cardTitleStyles,
+  input: inputStyles
 };

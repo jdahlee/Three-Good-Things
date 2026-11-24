@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-
+import { styles } from "../styles";
 
 import { getLog } from "../services/requests";
 
@@ -27,7 +27,7 @@ const LogFind = ({ ...props }) => {
 
 
   return (
-    <div className="flex flex-col h-full justify-start items-center p-5">
+    <div className={styles.body}>
       <h1>Find a past log</h1>
       <div className="flex mt-8 space-x-4">
         <input
